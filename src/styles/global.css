@@ -50,7 +50,7 @@
   }
 
   .nav-link.active {
-    @apply bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400;
+    @apply bg-slate-100 dark:bg-slate-800 text-xuxiang-600 dark:text-xuxiang-400;
   }
 
   /* Card styles */
@@ -72,7 +72,7 @@
 
   /* Links */
   a {
-    @apply text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors;
+    @apply text-xuxiang-600 dark:text-xuxiang-400 hover:text-xuxiang-700 dark:hover:text-xuxiang-300 transition-colors;
   }
 
   /* Tags */
@@ -86,7 +86,7 @@
   }
 
   .btn-primary {
-    @apply bg-indigo-600 hover:bg-indigo-700 text-white;
+    @apply bg-xuxiang-600 hover:bg-xuxiang-700 text-white;
   }
 
   .btn-secondary {
@@ -95,7 +95,7 @@
 
   /* Form elements */
   input, select, textarea {
-    @apply block w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors;
+    @apply block w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-xuxiang-500 focus:border-xuxiang-500 transition-colors;
   }
 
   /* Prose content */
@@ -108,7 +108,7 @@
   }
 
   .prose a {
-    @apply text-indigo-600 dark:text-indigo-400 no-underline hover:underline;
+    @apply text-xuxiang-600 dark:text-xuxiang-400 no-underline hover:underline;
   }
 
   .prose code {
@@ -124,7 +124,7 @@
   }
 
   .prose blockquote {
-    @apply border-l-4 border-indigo-300 dark:border-indigo-700 pl-4 py-1 italic;
+    @apply border-l-4 border-xuxiang-300 dark:border-xuxiang-700 pl-4 py-1 italic;
   }
 
   .prose img {

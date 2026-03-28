@@ -1,125 +1,55 @@
 ---
-import ThreeColumnLayout from '@layouts/ThreeColumnLayout.astro';
-import ArticleCard from '@components/ArticleCard.astro';
-import { getCollection } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Navigation from '@components/Navigation.astro';
+import Sidebar from '@components/Sidebar.astro';
+import MobileNav from '@components/MobileNav.astro';
+import PostList from '@components/islands/PostList';
 import { getSiteConfig } from '@utils/config';
 
-// Get all blog posts
-const allPosts = await getCollection('blog', ({ data }) => {
-  return import.meta.env.PROD ? !data.draft : true;
-});
-
-// Get featured blog posts
-const featuredPosts = allPosts
-  .filter(post => post.data.featured)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 3);
-
-// If we don't have enough featured posts, get the most recent ones
-if (featuredPosts.length < 3) {
-  const recentPosts = allPosts
-    .filter(post => !post.data.featured)
-    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    .slice(0, 3 - featuredPosts.length);
-  
-  featuredPosts.push(...recentPosts);
-}
-
-// Get projects
-const allProjects = await getCollection('projects', ({ data }) => {
-  return import.meta.env.PROD ? true : true;
-});
-
-// Get featured or recent projects
-const featuredProjects = allProjects
-  .filter(project => project.data.featured)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 2);
-
-// If we don't have enough featured projects, get the most recent ones
-if (featuredProjects.length < 2) {
-  const recentProjects = allProjects
-    .filter(project => !project.data.featured)
-    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-    .slice(0, 2 - featuredProjects.length);
-  
-  featuredProjects.push(...recentProjects);
-}
-
-// Get site configuration
 const siteConfig = getSiteConfig();
 ---
 
-<ThreeColumnLayout title={`Home | ${siteConfig.title}`}>
-  <header class="pb-8 border-b border-slate-200 dark:border-slate-800 mb-8">
-    <h1 class="text-4xl font-bold mb-6">{siteConfig.homeTitle}</h1>
-    <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl">
-      {siteConfig.homeSubtitle}
-    </p>
-  </header>
-
-  <section class="mb-12">
-    <h2 class="text-2xl font-bold mb-6">Featured Posts</h2>
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {featuredPosts.map(post => (
-        <ArticleCard
-          title={post.data.title}
-          description={post.data.description}
-          pubDate={post.data.pubDate}
-          updatedDate={post.data.updatedDate}
-          heroImage={post.data.heroImage}
-          tags={post.data.tags}
-          author={post.data.author}
-          slug={post.slug}
-        />
-      ))}
-    </div>
-    <div class="mt-8 text-center">
-      <a href="/blog" class="inline-block px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
-        View All Posts
-      </a>
-    </div>
-  </section>
-
-  <section>
-    <h2 class="text-2xl font-bold mb-6">Recent Projects</h2>
-    <div class="grid gap-6 md:grid-cols-2">
-      {featuredProjects.map(project => (
-        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-lg">
-          <h3 class="text-xl font-bold mb-2">
-            <a href={`/projects/${project.slug}`} class="text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-              {project.data.title}
+<BaseLayout title={`首页 | ${siteConfig.title}`}>
+  <div class="flex flex-col lg:flex-row min-h-screen bg-slate-50 dark:bg-slate-900">
+    <MobileNav />
+    <Navigation class="hidden lg:flex lg:flex-col lg:w-60 lg:fixed lg:inset-y-0 shrink-0 bg-white dark:bg-slate-800 shadow-md" />
+    
+    <main class="flex-1 w-full px-4 pt-16 lg:pt-0 lg:ml-60 xl:mr-64">
+      <div class="max-w-4xl mx-auto py-6">
+        <header class="pb-6 border-b border-slate-200 dark:border-slate-800 mb-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h1 class="text-3xl font-bold mb-2 text-xuxiang-600 dark:text-xuxiang-400">{siteConfig.homeTitle}</h1>
+              <p class="text-lg text-slate-600 dark:text-slate-300">
+                {siteConfig.homeSubtitle}
+              </p>
+            </div>
+            <a
+              href="/create"
+              class="hidden sm:inline-flex items-center px-4 py-2 bg-xuxiang-600 hover:bg-xuxiang-700 text-white rounded-lg transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              分享故事
             </a>
-          </h3>
-          <p class="text-slate-600 dark:text-slate-300 mb-4">
-            {project.data.description}
-          </p>
-          <div class="flex gap-2 flex-wrap mb-4">
-            {project.data.tags.map(tag => (
-              <a href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}`} class="text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-700 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-                {tag}
-              </a>
-            ))}
           </div>
-          <div class="flex gap-3">
-            {project.data.repoUrl && (
-              <a href={project.data.repoUrl} class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank" rel="noopener noreferrer">
-                GitHub
-              </a>
-            )}
-            {project.data.demoUrl && (
-              <a href={project.data.demoUrl} class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank" rel="noopener noreferrer">
-                Live Demo
-              </a>
-            )}
+        </header>
+
+        <section>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200">最近的议论</h2>
+            <a href="/create" class="sm:hidden text-xuxiang-600 dark:text-xuxiang-400">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </a>
           </div>
-        </div>
-      ))}
-    </div>
-    <div class="mt-8 text-center">
-      <a href="/projects" class="inline-block px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
-        View All Projects
-      </a>
-    </div>
-  </section>
-</ThreeColumnLayout>
+          <PostList client:load />
+        </section>
+      </div>
+    </main>
+
+    <Sidebar class="hidden xl:block xl:w-64 shrink-0 fixed right-0 top-0 bottom-0 bg-white dark:bg-slate-800 shadow-md" />
+  </div>
+</BaseLayout>

@@ -250,6 +250,13 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".mdx"] };
+"github-arsenal-skills.mdx": {
+	id: "github-arsenal-skills.mdx";
+  slug: "github-arsenal-skills";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
 "hashmap-source-analysis-optimization.mdx": {
 	id: "hashmap-source-analysis-optimization.mdx";
   slug: "hashmap-source-analysis-optimization";
@@ -488,6 +495,13 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".mdx"] };
+"unlocking-ai-hidden-capabilities.mdx": {
+	id: "unlocking-ai-hidden-capabilities.mdx";
+  slug: "unlocking-ai-hidden-capabilities";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
 "volatile-memory-visibility.mdx": {
 	id: "volatile-memory-visibility.mdx";
   slug: "volatile-memory-visibility";
@@ -521,5 +535,5 @@ declare module 'astro:content' {
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
-	export type ContentConfig = typeof import("../../src/content/config.js");
+	export type ContentConfig = typeof import("./../../src/content/config.js");
 }

@@ -1,0 +1,219 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getSiteConfig } from '@utils/config';
+
+const siteConfig = getSiteConfig();
+const postId = Astro.url.searchParams.get('id');
+---
+
+<BaseLayout title={`议论详情 | ${siteConfig.title}`}>
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+      <div class="mb-6">
+        <a href="/" class="text-xuxiang-600 dark:text-xuxiang-400 hover:underline flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          返回首页
+        </a>
+      </div>
+      
+      <div id="post-container" class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <div class="animate-pulse">
+          <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/4 mb-4"></div>
+          <div class="h-8 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full mb-2"></div>
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full mb-2"></div>
+          <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-modal-container"></div>
+
+  <script define:vars={{ postId }}>
+    import { getPostById, ROLE_CONFIG, incrementViews, deletePost, updatePost, getIdentity } from '@utils/postStorage';
+    
+    let currentPost = null;
+    
+    function renderEditModal() {
+      const modalContainer = document.getElementById('edit-modal-container');
+      modalContainer.innerHTML = `
+        <div id="edit-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div class="bg-white dark:bg-slate-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+              <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">编辑议论</h3>
+            </div>
+            <div class="p-6 space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">议论标题</label>
+                <input type="text" id="edit-title" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-xuxiang-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">你的看法</label>
+                <textarea id="edit-content" rows="8" class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-xuxiang-500"></textarea>
+              </div>
+            </div>
+            <div class="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-4">
+              <button id="edit-cancel" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">取消</button>
+              <button id="edit-save" class="px-4 py-2 bg-xuxiang-600 hover:bg-xuxiang-700 text-white rounded-lg">保存</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('edit-cancel').addEventListener('click', () => {
+        document.getElementById('edit-modal').classList.add('hidden');
+      });
+      
+      document.getElementById('edit-save').addEventListener('click', () => {
+        const title = document.getElementById('edit-title').value.trim();
+        const content = document.getElementById('edit-content').value.trim();
+        if (title && content && currentPost) {
+          updatePost(currentPost.id, { title, content });
+          document.getElementById('edit-modal').classList.add('hidden');
+          renderPost();
+        }
+      });
+    }
+    
+    function showEditModal() {
+      if (!currentPost) return;
+      document.getElementById('edit-title').value = currentPost.title;
+      document.getElementById('edit-content').value = currentPost.content;
+      document.getElementById('edit-modal').classList.remove('hidden');
+    }
+    
+    function handleDelete() {
+      if (confirm('确定要删除这段议论吗？此操作不可恢复。')) {
+        deletePost(postId);
+        window.location.href = '/';
+      }
+    }
+    
+    function renderPost() {
+      const container = document.getElementById('post-container');
+      const identity = getIdentity();
+      const isAdmin = identity?.role === 'admin' || identity?.role === 'owner';
+      
+      if (!postId) {
+        container.innerHTML = `
+          <div class="text-center py-12">
+            <div class="text-4xl mb-4">😕</div>
+            <p class="text-slate-500 dark:text-slate-400 mb-4">这段议论似乎消失了...</p>
+            <a href="/" class="text-xuxiang-600 dark:text-xuxiang-400 hover:underline">返回首页</a>
+          </div>
+        `;
+        return;
+      }
+      
+      currentPost = getPostById(postId);
+      
+      if (!currentPost) {
+        container.innerHTML = `
+          <div class="text-center py-12">
+            <div class="text-4xl mb-4">😕</div>
+            <p class="text-slate-500 dark:text-slate-400 mb-4">这段议论似乎消失了...</p>
+            <a href="/" class="text-xuxiang-600 dark:text-xuxiang-400 hover:underline">返回首页</a>
+          </div>
+        `;
+        return;
+      }
+      
+      incrementViews(postId);
+      
+      const roleConfig = ROLE_CONFIG[currentPost.author.role];
+      const date = new Date(currentPost.pubDate);
+      const formattedDate = date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      let adminButtons = '';
+      if (isAdmin) {
+        adminButtons = `
+          <div class="flex items-center gap-3 pt-6 mt-6 border-t border-slate-200 dark:border-slate-700">
+            <button id="edit-btn" class="text-sm px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              编辑
+            </button>
+            <button id="delete-btn" class="text-sm px-3 py-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              删除
+            </button>
+          </div>
+        `;
+      }
+      
+      container.innerHTML = `
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-sm px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded">
+              ${currentPost.category}
+            </span>
+          </div>
+          <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4">${currentPost.title}</h1>
+          <div class="flex items-center gap-3">
+            <img src="${currentPost.author.avatar}" alt="${currentPost.author.name}" class="w-10 h-10 rounded-full" />
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-medium text-slate-700 dark:text-slate-300">${currentPost.author.name}</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${roleConfig.color}">
+                  ${roleConfig.badge} ${roleConfig.label}
+                </span>
+              </div>
+              <div class="text-sm text-slate-500 dark:text-slate-400">${formattedDate}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="prose dark:prose-invert max-w-none mb-6">
+          <p class="whitespace-pre-wrap">${currentPost.content}</p>
+        </div>
+        
+        ${currentPost.tags && currentPost.tags.length > 0 ? `
+          <div class="flex flex-wrap gap-2 mb-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+            ${currentPost.tags.map(tag => `
+              <span class="text-sm px-3 py-1 bg-xuxiang-50 dark:bg-xuxiang-900/30 text-xuxiang-600 dark:text-xuxiang-400 rounded-full">
+                #${tag}
+              </span>
+            `).join('')}
+          </div>
+        ` : ''}
+        
+        <div class="flex items-center gap-6 pt-6 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400">
+          <span class="flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            ${currentPost.views} 次阅读
+          </span>
+          <span class="flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            ${currentPost.replies} 条回复
+          </span>
+        </div>
+        ${adminButtons}
+      `;
+      
+      if (isAdmin) {
+        document.getElementById('edit-btn').addEventListener('click', showEditModal);
+        document.getElementById('delete-btn').addEventListener('click', handleDelete);
+      }
+    }
+    
+    renderEditModal();
+    renderPost();
+  </script>
+</BaseLayout>

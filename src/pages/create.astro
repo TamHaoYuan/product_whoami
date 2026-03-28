@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getSiteConfig } from '@utils/config';
+import PostForm from '@components/islands/PostForm';
+
+const siteConfig = getSiteConfig();
+---
+
+<BaseLayout title={`分享故事 | ${siteConfig.title}`}>
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-900 py-8">
+    <div class="max-w-3xl mx-auto px-4">
+      <div class="mb-6">
+        <a href="/" class="text-xuxiang-600 dark:text-xuxiang-400 hover:underline flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          返回首页
+        </a>
+      </div>
+      
+      <div class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
+        <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-6">分享你的故事</h1>
+        
+        <PostForm client:load />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

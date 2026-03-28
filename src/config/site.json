@@ -1,17 +1,17 @@
 {
   "site": {
-    "title": "Product WhoAmI",
-    "description": "Personal portfolio website combining blog functionality with product showcase capabilities",
+    "title": "虚像茶馆",
+    "description": "以非上帝视角讨论故事的茶馆，欢迎各路读者前来议论",
     "url": "https://i.zhangqingdong.cn",
-    "author": "Gerrad Zhang",
-    "location": "Wuhan, China",
-    "email": "gerrad.zhang@hotmail.com",
+    "author": "虚像茶馆",
+    "location": "虚拟空间",
+    "email": "contact@xuxiang.com",
     "logo": "/logo.svg",
-    "homeTitle": "Gerrad's Digital Garden",
-    "homeSubtitle": "Welcome to my digital space. Discover my projects, read my thoughts on technology, and explore my professional journey.",
-    "blogSubtitle": "Insights, experiences, and knowledge sharing on technology, development, and innovation.",
-    "projectSubtitle": "A curated showcase of my personal projects, open source contributions, and product development journey.",
-    "brandTitle": "Gerrad Zhang"
+    "homeTitle": "虚像茶馆",
+    "homeSubtitle": "欢迎来到虚像茶馆，这里是故事中人物的议论故事的场所",
+    "blogSubtitle": "分享你对故事的见解，议论剧情发展，探讨角色命运。",
+    "projectSubtitle": "故事创作与讨论的茶馆。",
+    "brandTitle": "虚像"
   },
   "giscus": {
     "enabled": true,
